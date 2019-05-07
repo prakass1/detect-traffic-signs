@@ -38,7 +38,7 @@ def read_image(base_path=".",roi=False):
         return image_list, class_labels
 
 #Main
-image_list, class_labels = read_image(base_path="F://Modules_Courses//Semester-4//Computer Vision//data//GTSRB//Final_Training//Images//")
+image_list, class_labels = read_image(base_path="")
 print("Length of image ", len(image_list))
 
 
