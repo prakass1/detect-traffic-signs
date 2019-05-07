@@ -43,6 +43,5 @@ for i in range(6):
 ax[6][0].imshow(dict_img.get(42))
 ax[6][0].set_xlabel(str(42))
 plt.tight_layout()
-plt.show()
 plt.savefig("image_ds.png")
 
