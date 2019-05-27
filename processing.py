@@ -1,88 +1,103 @@
-'''
-This class will ideally do initial bit to extract the csvs of the required classes
-and extract key features to create a data to feed into machine learning models
-
-Authors:
-
-
-Running system:
-python 3.6
-
-'''
-
 import csv
 import props
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
-import seaborn as sns
+
+# Constants
 ext = ".csv"
 file_const = "GT-"
+
 def read_image(base_path=".",roi=False):
-        image_list = []
-        class_labels = []
+    '''
+    :param base_path: The first path where all the image are placed
+    :param roi: default False. Can be set to True
+    :return: image_list, class_labels
+    '''
 
-        print("Image Extracting started !!")
+    image_list = []
+    class_labels = []
 
-        for val in props.classes:
-            # Read the file by using the prefix and base path
-            reader = open(base_path + val + "//" + "".join(file_const + val + ext))
-            csv_reader = csv.reader(reader, delimiter=';')
-            next(csv_reader)
+    print("Image Extracting started !!")
 
-            for row in csv_reader:
-                im = cv2.imread(base_path + val + "//" + row[0],cv2.IMREAD_GRAYSCALE)
-                #im_resized = cv2.resize(im,(32, 32))
-                image_list.append(im)
-                class_labels.append(row[7])
-                #print("Image Filename - ", row[0])
+    for val in props.classes:
+        # Read the file by using the prefix and base path
+        reader = open(base_path + val + "//" + "".join(file_const + val + ext))
+        csv_reader = csv.reader(reader, delimiter=';')
+        next(csv_reader)
 
-            #close somewhere finally
-            reader.close()
-            print("Extraction is now completed for class -- " + str(val) + " and current images are -- " + str(len(image_list)))
-        return image_list, class_labels
+        for row in csv_reader:
+            im = cv2.imread(base_path + val + "//" + row[0])
 
+            if roi:
+                im = im[np.int(row[4]):np.int(row[6]),
+                        np.int(row[3]):np.int(row[5]),:]
 
-#Main
-image_list, class_labels = read_image(base_path="")
-print("Length of image ", len(image_list))
+            #im_resized = cv2.resize(im,(45, 45))
+            image_list.append(im)
+            class_labels.append(row[7])
+            #print("Image Filename - ", row[0])
 
-#Visualize an image
-ima = image_list[6889]
-plt.imshow(ima)
+        #close somewhere finally
+        reader.close()
+        print("Extraction is now completed for class -- " + str(val) + " and current images are -- " + str(len(image_list)))
 
-### Some visualization - Ideal to move this to a separate file if required
-'''
-fig, ax = plt.subplots(6,6,figsize=(15,8))
-plt.tight_layout()
-for i in range(0,6):
-    for j in range(0,6):
-        randInt = np.random.randint(0, len(image_list))
-        ax[i][j].imshow(image_list[randInt], cmap="gist_gray")
-plt.savefig("plt_traffic_sign.png")
-'''
-
-'''
-#### normalization of images wiki
-X = np.array(image_list) / 255
-type(X[0])
-X = [x - np.mean(x) for x in X]
-
-X = [x.flatten() for x in X]
-#####################################
-
-#### Example to implement an ML - Surely overfitting #################
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import *
-
-X_train, X_test, y_train, y_test = train_test_split(X, class_labels, test_size=0.50, random_state=42)
+    return image_list, class_labels
 
 
-rf = RandomForestClassifier()
-rf.fit(X_train,y_train)
-pred = rf.predict(X_test)
+def extract_features(feature, image_list):
+    '''
+    The function performs extraction of features on the image list.
+    Implemented Features are sent in function parameter - Example: extract_features("gray", image_list) for extracting
+    only grayscaled based features
 
-accuracy_score(y_test,pred)
-confusion_matrix(y_test,pred)
-'''
+    Note: This function also normalizes data, hence no need for any explicit normalization.
+
+    :param feature:
+    :param image_list:
+    :return:
+    '''
+
+    #1: resize image to equal size
+    resize = (32, 32)
+    print("Performing resize of image to -- " + str(resize))
+    X = [cv2.resize(image, resize) for image in image_list]
+
+    #2: Normalize and mean subtraction.
+    # This done to enhance local intensity of image and not look at brightness
+    print("Applying normalization")
+    if feature is not "hog":
+        X = np.asarray(X, dtype=np.float32)/255
+        X = [x - np.mean(x) for x in X]
+
+    if feature is not None:
+        # Feature is grayscale
+        if feature == "gray":
+            print("Extraction for grayscale features")
+            X = [cv2.cvtColor(x, cv2.COLOR_BGR2GRAY) for x in X]
+
+        # Feature is HSV - Hue, Saturation, Value. Hue is a good feature
+        if feature == "hsv":
+            print("Extraction for hsv features")
+            X = [cv2.cvtColor(x, cv2.COLOR_BGR2HSV) for x in X]
+
+        # Feature is SIFT
+        #if feature == "sift":
+
+        # Feature is HoG
+        if feature == "hog":
+            print("Extraction for HoG features")
+            # Paper params
+            # (16,16) block size
+            block_size = (resize[0] // 2, resize[1] // 2)
+            # (8,8) cell size == block_stride (Moving cell area)
+            block_stride = (resize[0] // 4, resize[1] // 4)
+            cell_size = block_stride
+            # number of bins - 9
+            nBins = 9
+            hog = cv2.HOGDescriptor(resize, block_size, block_stride, cell_size, nBins)
+            X = [hog.compute(np.asarray(x, dtype=np.uint8)) for x in X]
+
+    # Flatten and return so that it could be used in machine learning module
+    print("Features are extracted, flattening the array")
+    X = [x.flatten() for x in X]
+    return X
