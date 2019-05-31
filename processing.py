@@ -101,3 +101,41 @@ def extract_features(feature, image_list):
     print("Features are extracted, flattening the array")
     X = [x.flatten() for x in X]
     return X
+
+
+
+def read_test_image(base_path, roi=False):
+    '''
+    :param base_path: The first path where all the image are placed
+    :param roi: default False. Can be set to True
+    :return: image_list, class_labels
+    '''
+
+    image_list = []
+    #class_labels = []
+
+    print("Image Extracting started !!")
+
+    
+        # Read the file by using the prefix and base path
+    reader = open(base_path + "GT-final_test.test.csv")
+    csv_reader = csv.reader(reader, delimiter=';')
+    next(csv_reader)
+
+    for row in csv_reader:
+        im = cv2.imread(base_path + row[0])
+
+        if roi:
+            im = im[np.int(row[4]):np.int(row[6]),
+                np.int(row[3]):np.int(row[5]),:]
+
+        #im_resized = cv2.resize(im,(45, 45))
+        image_list.append(im)
+        #class_labels.append(row[7])
+        #print("Image Filename - ", row[0])
+
+        #close somewhere finally
+    reader.close()
+    print("Extraction is now completed for test data and number of images are -- " + str(len(image_list)))
+
+    return image_list
