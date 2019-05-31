@@ -9,6 +9,9 @@ import processing as pp
 import pickle
 import traceback
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def build_model(X, classId, model_name, features):
     try:
@@ -21,23 +24,50 @@ def build_model(X, classId, model_name, features):
             # The parameters are only obtained after grid search which is commented below
             rf = RandomForestClassifier(n_estimators=700, criterion="entropy")
             # Repeated kfolds with 2 splits and repeation of 5 times is done
-            rkf = RepeatedKFold(n_splits=2, n_repeats=5, random_state=123321)
+            splits = 2
+            repeats = 5
+            rkf = RepeatedKFold(n_splits=splits, n_repeats=repeats, random_state=None)
             count = 1
             for train_index, test_index in rkf.split(X):
                 print("Starting training with fold - %d" % count)
                 X_train, X_test = np.asarray(X)[train_index], np.asarray(X)[test_index]
                 y_train, y_test = np.asarray(classId)[train_index], np.asarray(classId)[test_index]
+                y_labels = np.unique(y_train)
                 rf.fit(X_train, y_train)
                 pred = rf.predict(X_test)
                 pred_prob = rf.predict_proba(X_test)
                 from pprint import pprint
                 pprint(classification_report(pred, y_test))
-                pprint(precision_score(pred, y_test,average="macro"))
-                pprint(recall_score(pred, y_test,average="macro"))
-                pprint(f1_score(pred, y_test,average="weighted"))
-                pprint(accuracy_score(pred, y_test))
-                pprint(confusion_matrix(pred, y_test))
-                count += count
+                print("Precision Score - Micro Averaging is -- %f" % precision_score(pred, y_test, average="micro"))
+                print("Recall Score - Micro Averaging is -- %f " % recall_score(pred, y_test, average="micro"))
+                print("F1 Score - is -- %f" % f1_score(pred, y_test, average="micro"))
+                print("Accuracy of fold- " + str(count) + " is -- %f" % accuracy_score(pred, y_test))
+                cf_m = confusion_matrix(pred, y_test)
+                pprint(cf_m)
+                if count == (splits * repeats):
+
+                    sns.set_style("whitegrid")
+                    sns.set_palette("viridis")
+                    cm_df = pd.DataFrame(cf_m, index=[class_switcher(i) for i in y_labels],
+                                         columns=[class_switcher(i) for i in y_labels])
+                    plt.figure(figsize=(18, 15))
+                    try:
+                        heatmap = sns.heatmap(cm_df, annot=True, fmt="d", cmap="YlGn")
+                    except ValueError:
+                        raise ValueError("Confusion matrix values must be integers.")
+                    heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right',
+                                                 fontsize=10)
+                    heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha='right',
+                                                 fontsize=10)
+                    plt.ylabel('True label')
+                    plt.xlabel('Predicted label')
+
+                    if features is not None:
+                        plt.savefig("images//cm-fold-"+ str(count) + str(features) + ".png")
+                    else:
+                        plt.savefig("images//cm-fold-" + str(count) + ".png")
+
+                count += 1
 
     #Grid Search is now commented
         '''
@@ -115,7 +145,7 @@ def perform_training(model_name, features=None):
         print("There is some error while building the model. Fix errors and retrain")
 
 
-def make_predict():
+def make_predict(features):
     '''
 
     Steps:
@@ -129,6 +159,49 @@ def make_predict():
     3. Use that image to Make prediction and draw a boundary box with prediction to the scene
     :return:
     '''
+
+    image_list = pp.read_test_image(properties.test_base_dir, False)
+    X = pp.extract_features(features, image_list)
+    
+
+    print("Starting Testing...")
+    model = pickle.load(open(properties.model_location + "rf_" + features, 'rb'))
+    pred = model.predict(X)
+    pred_prob = model.predict_proba(X)
+    print("Testing complete...")
+
+    predict_arr = []
+
+    for i, row in enumerate(pred_prob):
+        new_list = []
+        
+        for val in row:
+            new_list.append(val)
+
+        if max(row) > 0.8:
+            new_list.append(class_switcher(pred[i]))
+        else:
+            new_list.append("Others")
+        
+        predict_arr.append(new_list)
+
+
+    ### Write prediction to test files
+    np.savetxt("predictions/" + features + "/prediction.csv", np.array(pred), fmt='%s', delimiter=",")
+    
+    np.savetxt("predictions/" + features + "/prediction_prob.csv", np.array(pred_prob), delimiter=",")
+
+    np.savetxt("predictions/" + features + "/prediction_all.csv", np.array(predict_arr), fmt='%s', delimiter=",")
+    
+def class_switcher(arg):
+    switch = {
+        '3': 'Speed Sign',
+        '11': 'Priority to through-traffic',
+        '12': 'Priority Road starts',
+        '13': 'Yield'
+    }
+
+    return switch.get(arg, "Others")
 
 
 def save_model(model_name, obj):

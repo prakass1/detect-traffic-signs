@@ -15,11 +15,22 @@ import machine_learning as ml
 
 #switch to args later
 def main():
+
+    if properties.args == "cl":
+        initialize_args()
+
     if properties.train == True:
-        ml.perform_training("rf", features="hog")
+        ml.perform_training("rf", features="laplacian")
 
     if properties.predict == True:
-        ml.make_predict()
+        ml.make_predict(features="hog")
+
+
+def initialize_args():
+    
+    #add reading of args from command line
+
+    return
 
 #### Start of Main ####
 
