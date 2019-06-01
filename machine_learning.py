@@ -204,6 +204,49 @@ def class_switcher(arg):
     return switch.get(arg, "Others")
 
 
+    image_list = pp.read_test_image(properties.test_base_dir, False)
+    X = pp.extract_features(features, image_list)
+    
+
+    print("Starting Testing...")
+    model = pickle.load(open(properties.model_location + "rf_" + features, 'rb'))
+    pred = model.predict(X)
+    pred_prob = model.predict_proba(X)
+    print("Testing complete...")
+
+    predict_arr = []
+
+    for i, row in enumerate(pred_prob):
+        new_list = []
+        
+        for val in row:
+            new_list.append(val)
+
+        if max(row) > 0.8:
+            new_list.append(class_switcher(pred[i]))
+        else:
+            new_list.append("Others")
+        
+        predict_arr.append(new_list)
+
+
+    np.savetxt("prediction.csv", np.array(pred), fmt='%s', delimiter=",")
+    
+    np.savetxt("prediction_prob.csv", np.array(pred_prob), delimiter=",")
+
+    np.savetxt("prediction_all.csv", np.array(predict_arr), fmt='%s', delimiter=",")
+    
+def class_switcher(arg):
+    switch = {
+        '3': 'Speed Sign',
+        '11': 'Priority to through-traffic',
+        '12': 'Priority Road starts',
+        '13': 'Yield'
+    }
+
+    return switch.get(arg, "Others")
+
+
 def save_model(model_name, obj):
     print("Saving model to the location ", properties.model_location)
     model_file = open("".join(properties.model_location + model_name), "wb")
