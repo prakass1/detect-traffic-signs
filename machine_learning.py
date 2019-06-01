@@ -50,15 +50,15 @@ def build_model(X, classId, model_name, features):
                     sns.set_palette("viridis")
                     cm_df = pd.DataFrame(cf_m, index=[class_switcher(i) for i in y_labels],
                                          columns=[class_switcher(i) for i in y_labels])
-                    plt.figure(figsize=(18, 15))
+                    plt.figure(figsize=(15, 8))
                     try:
                         heatmap = sns.heatmap(cm_df, annot=True, fmt="d", cmap="YlGn")
                     except ValueError:
                         raise ValueError("Confusion matrix values must be integers.")
-                    heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right',
-                                                 fontsize=10)
-                    heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha='right',
-                                                 fontsize=10)
+                    heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=40, ha='right',
+                                                 fontsize=12)
+                    heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=0, ha='right',
+                                                 fontsize=12)
                     plt.ylabel('True label')
                     plt.xlabel('Predicted label')
 

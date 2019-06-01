@@ -20,7 +20,7 @@ def main():
         initialize_args()
 
     if properties.train == True:
-        ml.perform_training("rf", features="laplacian")
+        ml.perform_training("rf", features="hog")
 
     if properties.predict == True:
         ml.make_predict(features="hog")
