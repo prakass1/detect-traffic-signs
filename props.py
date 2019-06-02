@@ -8,10 +8,10 @@
 '''
 
 classes = ["00003", "00011", "00012", "00013"]
-train = True
-predict = False
+train = False
+predict = True
 model_location = "models//"
 train_base_dir = "F://Modules_Courses//Semester-4//Computer Vision//data//GTSRB//Final_Training//Images//"
-test_base_dir = ""
+test_base_dir = "F://Modules_Courses//Semester-4//Computer Vision//data//GTSRB//Final_Test//Images//"
 args = ""
 

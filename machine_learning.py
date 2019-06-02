@@ -13,7 +13,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 def build_model(X, classId, model_name, features):
+    precison = []
+    recall = []
+    accuracy = []
     try:
         #X_train, X_test, y_train, y_test = train_test_split(X,
          #                                               classId,
@@ -39,9 +43,12 @@ def build_model(X, classId, model_name, features):
                 from pprint import pprint
                 pprint(classification_report(pred, y_test))
                 print("Precision Score - Micro Averaging is -- %f" % precision_score(pred, y_test, average="micro"))
+                precison.append(precision_score(pred, y_test, average="micro"))
                 print("Recall Score - Micro Averaging is -- %f " % recall_score(pred, y_test, average="micro"))
+                recall.append(recall_score(pred, y_test, average="micro"))
                 print("F1 Score - is -- %f" % f1_score(pred, y_test, average="micro"))
                 print("Accuracy of fold- " + str(count) + " is -- %f" % accuracy_score(pred, y_test))
+                accuracy.append(accuracy_score(pred, y_test))
                 cf_m = confusion_matrix(pred, y_test)
                 pprint(cf_m)
                 if count == (splits * repeats):
@@ -113,6 +120,9 @@ def build_model(X, classId, model_name, features):
         print("There seems to be some error during model build phase")
         traceback.print_exc()
         return -1
+
+    # Plot learning curves
+    plt_learning_curve(precison, recall, accuracy, features)
     return 0
 
 
@@ -131,7 +141,7 @@ def perform_training(model_name, features=None):
     :return:
     """
     print("Training has started...")
-    image_list, class_labels = pp.read_image(base_path=properties.train_base_dir)
+    image_list, class_labels = pp.read_image(base_path=properties.train_base_dir, roi=True)
     print("Length of image ", len(image_list))
     print("Extracting features from the read images...")
     X = pp.extract_features(features, image_list)
@@ -143,6 +153,31 @@ def perform_training(model_name, features=None):
         print("Training and validation of model is now completed successfully!!")
     else:
         print("There is some error while building the model. Fix errors and retrain")
+
+
+def plt_learning_curve(precison, recall, accuracy, features):
+    cv = [i for i in range(10)]
+    # Precision
+    fig = plt.subplots(figsize=(10,8))
+    plt.plot(cv, precison)
+    plt.xlabel("folds")
+    plt.ylabel("precision")
+    plt.title("Precision Over folds")
+    plt.savefig("".join("images/" + str(features) + "_precision.png"))
+    # Recall
+    fig = plt.subplots(figsize=(10,8))
+    plt.plot(cv, recall)
+    plt.xlabel("folds")
+    plt.ylabel("recall")
+    plt.title("Recall Over folds")
+    plt.savefig("".join("images/" + str(features) + "_recall.png"))
+    # Accuracy
+    fig = plt.subplots(figsize=(10,8))
+    plt.plot(cv, accuracy)
+    plt.xlabel("folds")
+    plt.ylabel("accuracy")
+    plt.title("Accuracy Over folds")
+    plt.savefig("".join("images/" + str(features) + "_accuracy.png"))
 
 
 def make_predict(features):
@@ -159,9 +194,8 @@ def make_predict(features):
     3. Use that image to Make prediction and draw a boundary box with prediction to the scene
     :return:
     '''
-
-    image_list = pp.read_test_image(properties.test_base_dir, False)
-    X = pp.extract_features(features, image_list)
+    test_image_list = pp.read_test_image(properties.test_base_dir, roi=True)
+    X = pp.extract_features(features, test_image_list)
     
 
     print("Starting Testing...")
@@ -171,18 +205,44 @@ def make_predict(features):
     print("Testing complete...")
 
     predict_arr = []
-
+    fig, ax = plt.subplots(5,5, figsize=(15, 8))
+    count = 0
+    j = 0
     for i, row in enumerate(pred_prob):
         new_list = []
-        
+
+        if count == 5 and j == 5:
+            plt.savefig("".join("images/" + str(features) + "_predictions.png"))
+
+        if count == 5 and j != 5:
+            count = 0
+            j += 1
+
         for val in row:
             new_list.append(val)
 
-        if max(row) > 0.8:
+        if "hog" is not features:
+            thresh = 0.70
+        else:
+            thresh = .95
+
+
+        if max(row) >= thresh:
             new_list.append(class_switcher(pred[i]))
+            if j != 5:
+                ax[j][count].imshow(test_image_list[i], cmap="gray")
+                ax[j][count].text(0.5, 0.5, pred[i], horizontalalignment='left',
+                       verticalalignment='top', color="g", weight="bold")
+
         else:
             new_list.append("Others")
-        
+            if j != 5:
+                ax[j][count].imshow(test_image_list[i], cmap="gray")
+                ax[j][count].text(0.5, 0.5, "Others", horizontalalignment='left',
+                       verticalalignment='top', color="g", weight="bold")
+
+        count += 1
+
         predict_arr.append(new_list)
 
 
@@ -192,49 +252,6 @@ def make_predict(features):
     np.savetxt("predictions/" + features + "/prediction_prob.csv", np.array(pred_prob), delimiter=",")
 
     np.savetxt("predictions/" + features + "/prediction_all.csv", np.array(predict_arr), fmt='%s', delimiter=",")
-    
-def class_switcher(arg):
-    switch = {
-        '3': 'Speed Sign',
-        '11': 'Priority to through-traffic',
-        '12': 'Priority Road starts',
-        '13': 'Yield'
-    }
-
-    return switch.get(arg, "Others")
-
-
-    image_list = pp.read_test_image(properties.test_base_dir, False)
-    X = pp.extract_features(features, image_list)
-    
-
-    print("Starting Testing...")
-    model = pickle.load(open(properties.model_location + "rf_" + features, 'rb'))
-    pred = model.predict(X)
-    pred_prob = model.predict_proba(X)
-    print("Testing complete...")
-
-    predict_arr = []
-
-    for i, row in enumerate(pred_prob):
-        new_list = []
-        
-        for val in row:
-            new_list.append(val)
-
-        if max(row) > 0.8:
-            new_list.append(class_switcher(pred[i]))
-        else:
-            new_list.append("Others")
-        
-        predict_arr.append(new_list)
-
-
-    np.savetxt("prediction.csv", np.array(pred), fmt='%s', delimiter=",")
-    
-    np.savetxt("prediction_prob.csv", np.array(pred_prob), delimiter=",")
-
-    np.savetxt("prediction_all.csv", np.array(predict_arr), fmt='%s', delimiter=",")
     
 def class_switcher(arg):
     switch = {
