@@ -65,7 +65,7 @@ def extract_features(feature, image_list):
     #2: Normalize and mean subtraction.
     # This done to enhance local intensity of image and not look at brightness
 
-    if feature not in ["hog", "laplacian"]:
+    if feature not in ["hog", "laplacian", "merged"]:
         print("Applying normalization")
         X = np.asarray(X, dtype=np.float32)/255
         X = [x - np.mean(x) for x in X]
@@ -84,13 +84,32 @@ def extract_features(feature, image_list):
         # Feature is laplacian
         if feature == "laplacian":
             X = [cv2.GaussianBlur(x, (3, 3), 0) for x in X]
-            X = [cv2.cvtColor(x, cv2.COLOR_RGB2GRAY) for x in X]
-            # get edges
+            X = [cv2.cvtColor(x, cv2.COLOR_BGR2GRAY) for x in X]
+            # detect edges
             X = [cv2.Laplacian(x, cv2.CV_64F) for x in X]
 
         # Feature is HoG
         if feature == "hog":
             print("Extraction for HoG features")
+            # Paper params
+            # (16,16) block size
+            block_size = (resize[0] // 2, resize[1] // 2)
+            # (8,8) cell size == block_stride (Moving cell area)
+            block_stride = (resize[0] // 4, resize[1] // 4)
+            cell_size = block_stride
+            # number of bins - 9
+            nBins = 9
+            hog = cv2.HOGDescriptor(resize, block_size, block_stride, cell_size, nBins)
+            X = [hog.compute(np.asarray(x, dtype=np.uint8)) for x in X]
+
+        # Merged features
+        if feature == "merged":
+            print("Extraction of edge features")
+            X = [cv2.GaussianBlur(x, (3, 3), 0) for x in X]
+            X = [cv2.cvtColor(x, cv2.COLOR_BGR2GRAY) for x in X]
+            # detect edges
+            X = [cv2.Laplacian(x, cv2.CV_64F) for x in X]
+            print("Extraction of HoG on edge features")
             # Paper params
             # (16,16) block size
             block_size = (resize[0] // 2, resize[1] // 2)
