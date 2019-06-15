@@ -15,7 +15,7 @@ test
 Authors:
 Subash Prakash (220408)
 Oliver Watson (224262)
-Jannes Randler
+Jannes Randler (212923)
 
 Running System:
 Python Version: 3.X
