@@ -14,7 +14,7 @@ test
 
 Authors:
 Subash Prakash (220408)
-Oliver Watson
+Oliver Watson (224262)
 Jannes Randler
 
 Running System:
@@ -53,7 +53,7 @@ def main():
     initialize_args()
 
     if properties.train == True:
-        for feature in ["hog","gray", "hsv", "laplacian"]:
+        for feature in ["hog","gray", "hsv", "laplacian", "merged"]:
             ml.perform_training("rf", features=feature)
 
     if properties.predict == True:

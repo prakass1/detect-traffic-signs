@@ -194,7 +194,7 @@ def make_predict(features):
     3. Use that image to Make prediction and draw a boundary box with prediction to the scene
     :return:
     '''
-    test_image_list = pp.read_test_image(properties.test_base_dir, roi=True)
+    test_image_list, class_labels = pp.read_test_image(properties.test_base_dir, roi=True)
     X = pp.extract_features(features, test_image_list)
     
 
@@ -204,54 +204,68 @@ def make_predict(features):
     pred_prob = model.predict_proba(X)
     print("Testing complete...")
 
-    predict_arr = []
-    fig, ax = plt.subplots(5,5, figsize=(15, 8))
-    count = 0
-    j = 0
-    for i, row in enumerate(pred_prob):
-        new_list = []
+    # predict_arr = []
+    # fig, ax = plt.subplots(5,5, figsize=(15, 8))
+    # count = 0
+    # j = 0
+    # for i, row in enumerate(pred_prob):
+    #     new_list = []
 
-        if count == 5 and j == 5:
-            plt.savefig("".join("images/" + str(features) + "_predictions.png"))
+    #     if count == 5 and j == 5:
+    #         plt.savefig("".join("images/" + str(features) + "_predictions.png"))
 
-        if count == 5 and j != 5:
-            count = 0
-            j += 1
+    #     if count == 5 and j != 5:
+    #         count = 0
+    #         j += 1
 
-        for val in row:
-            new_list.append(val)
+    #     for val in row:
+    #         new_list.append(val)
 
-        if "hog" is not features:
-            thresh = 0.70
-        else:
-            thresh = .95
-
-
-        if max(row) >= thresh:
-            new_list.append(class_switcher(pred[i]))
-            if j != 5:
-                ax[j][count].imshow(test_image_list[i], cmap="gray")
-                ax[j][count].text(0.5, 0.5, pred[i], horizontalalignment='left',
-                       verticalalignment='top', color="g", weight="bold")
-
-        else:
-            new_list.append("Others")
-            if j != 5:
-                ax[j][count].imshow(test_image_list[i], cmap="gray")
-                ax[j][count].text(0.5, 0.5, "Others", horizontalalignment='left',
-                       verticalalignment='top', color="g", weight="bold")
-
-        count += 1
-
-        predict_arr.append(new_list)
+    #     if "hog" is not features:
+    #         thresh = 0.70
+    #     else:
+    #         thresh = .95
 
 
-    ### Write prediction to test files
-    np.savetxt("predictions/" + features + "/prediction.csv", np.array(pred), fmt='%s', delimiter=",")
+    #     if max(row) >= thresh:
+    #         new_list.append(class_switcher(pred[i]))
+    #         if j != 5:
+    #             ax[j][count].imshow(test_image_list[i], cmap="gray")
+    #             ax[j][count].text(0.5, 0.5, pred[i], horizontalalignment='left',
+    #                    verticalalignment='top', color="g", weight="bold")
+
+    #     else:
+    #         new_list.append("Others")
+    #         if j != 5:
+    #             ax[j][count].imshow(test_image_list[i], cmap="gray")
+    #             ax[j][count].text(0.5, 0.5, "Others", horizontalalignment='left',
+    #                    verticalalignment='top', color="g", weight="bold")
+
+    #     count += 1
+
+    #     predict_arr.append(new_list)
+
+
+    # ### Write prediction to test files
+    # np.savetxt("predictions/" + features + "/prediction.csv", np.array(pred), fmt='%s', delimiter=",")
     
-    np.savetxt("predictions/" + features + "/prediction_prob.csv", np.array(pred_prob), delimiter=",")
+    # np.savetxt("predictions/" + features + "/prediction_prob.csv", np.array(pred_prob), delimiter=",")
 
-    np.savetxt("predictions/" + features + "/prediction_all.csv", np.array(predict_arr), fmt='%s', delimiter=",")
+    # np.savetxt("predictions/" + features + "/prediction_all.csv", np.array(predict_arr), fmt='%s', delimiter=",")
+    
+    from pprint import pprint
+    pprint(classification_report(pred, class_labels))
+    print("Precision Score - Micro Averaging is -- %f" % precision_score(pred, class_labels, average="micro"))
+    print("Recall Score - Micro Averaging is -- %f " % recall_score(pred, class_labels, average="micro"))
+    print("F1 Score - is -- %f" % f1_score(pred, class_labels, average="micro"))
+    print("Accuracy is -- %f" % accuracy_score(pred, class_labels))
+    cf_m = confusion_matrix(pred, class_labels)
+    pprint(cf_m)
+
+    # save confusion matrix 
+    np.savetxt("predictions/" + features + "/confusion_matrix.csv", np.array(cf_m), fmt='%s', delimiter=",")
+
+
     
 def class_switcher(arg):
     switch = {

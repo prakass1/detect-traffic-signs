@@ -136,13 +136,13 @@ def read_test_image(base_path, roi=False):
     '''
 
     image_list = []
-    #class_labels = []
+    class_labels = []
 
     print("Image Extracting started !!")
 
     
-        # Read the file by using the prefix and base path
-    reader = open(base_path + "GT-final_test.test.csv")
+    # Read the file by using the prefix and base path
+    reader = open(base_path + "GT-final_test.csv")
     csv_reader = csv.reader(reader, delimiter=';')
     next(csv_reader)
 
@@ -155,11 +155,11 @@ def read_test_image(base_path, roi=False):
 
         #im_resized = cv2.resize(im,(45, 45))
         image_list.append(im)
-        #class_labels.append(row[7])
+        class_labels.append(row[7])
         #print("Image Filename - ", row[0])
 
         #close somewhere finally
     reader.close()
     print("Extraction is now completed for test data and number of images are -- " + str(len(image_list)))
 
-    return image_list
+    return image_list, class_labels
