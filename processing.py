@@ -21,6 +21,7 @@ def read_image(base_path=".",roi=False):
 
     for val in props.classes:
         # Read the file by using the prefix and base path
+        val = val.zfill(5)
         reader = open(base_path + val + "//" + "".join(file_const + val + ext))
         csv_reader = csv.reader(reader, delimiter=';')
         next(csv_reader)

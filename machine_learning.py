@@ -283,3 +283,41 @@ def save_model(model_name, obj):
     model_file = open("".join(properties.model_location + model_name), "wb")
     # Save the model
     pickle.dump(obj, model_file)
+
+
+def make_single_img_prediction(feature, img):
+    import cv2
+    print("Resizing")
+    resize = (32, 32)
+    X = img.copy()
+    X = cv2.resize(X, resize)
+    if feature == "laplacian":
+        print("Extracting laplacian features")
+        X = cv2.GaussianBlur(X, (3, 3), 0)
+        X = cv2.cvtColor(X, cv2.COLOR_BGR2GRAY)
+        # detect edges
+        X = cv2.Laplacian(X, cv2.CV_64F)
+    # Feature is HoG
+    if feature == "hog":
+        print("Extraction for HoG features")
+        # Paper params
+        # (16,16) block size
+        block_size = (resize[0] // 2, resize[1] // 2)
+        # (8,8) cell size == block_stride (Moving cell area)
+        block_stride = (resize[0] // 4, resize[1] // 4)
+        cell_size = block_stride
+        # number of bins - 9
+        nBins = 9
+        hog = cv2.HOGDescriptor(resize, block_size, block_stride, cell_size, nBins)
+        X = hog.compute(np.asarray(X, dtype=np.uint8))
+
+    X = [X.flatten()]
+    print("Starting Testing...")
+    model = pickle.load(open(properties.model_location + "rf_" + str(feature), 'rb'))
+    pred = model.predict(X)
+    print("The prediction for the image is ", str(pred))
+    plt.imshow(img, cmap="gray")
+    plt.text(0.5, 0.5, str(pred), horizontalalignment='left',
+                        verticalalignment='top', color="g", weight="bold")
+    plt.savefig("images//prediction.png")
+
