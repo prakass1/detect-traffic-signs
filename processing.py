@@ -84,6 +84,7 @@ def extract_features(feature, image_list):
 
         # Feature is laplacian
         if feature == "laplacian":
+            print("extracting laplacian features")
             X = [cv2.GaussianBlur(x, (3, 3), 0) for x in X]
             X = [cv2.cvtColor(x, cv2.COLOR_BGR2GRAY) for x in X]
             # detect edges
@@ -105,12 +106,13 @@ def extract_features(feature, image_list):
 
         # Merged features
         if feature == "merged":
-            print("Extraction of edge features")
+            print("Creating merged features")
+            print("1. Extraction of edge features")
             X = [cv2.GaussianBlur(x, (3, 3), 0) for x in X]
             X = [cv2.cvtColor(x, cv2.COLOR_BGR2GRAY) for x in X]
             # detect edges
             X = [cv2.Laplacian(x, cv2.CV_64F) for x in X]
-            print("Extraction of HoG on edge features")
+            print("2. Extraction of HoG on edge features")
             # Paper params
             # (16,16) block size
             block_size = (resize[0] // 2, resize[1] // 2)
@@ -123,7 +125,7 @@ def extract_features(feature, image_list):
             X = [hog.compute(np.asarray(x, dtype=np.uint8)) for x in X]
 
     # Flatten and return so that it could be used in machine learning module
-    print("Features are extracted, flattening the array")
+    print("Merged features are extracted, flattening the array")
     X = [x.flatten() for x in X]
     return X
 

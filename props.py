@@ -8,7 +8,7 @@
 '''
 
 classes = [str(i) for i in range(0, 43)]
-train = True
+train = False
 predict = True
 model_location = "models//"
 train_base_dir = ""

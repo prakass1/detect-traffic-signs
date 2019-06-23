@@ -53,19 +53,18 @@ Help:
 
 *_Note: Ensure that you add "/" at the end of each folder locations_*
    * Example:  
-   <span style="color:green;">Correct usage: "F:/training_images/"</span>  
-   <span style="color:red;">False usage: "F:/training_images"</span>  
    
+   <span style="color:green;">Correct usage: "F:/training_images/"</span>  
+   <span style="color:red;">False usage: "F:/training_images"</span>
 
-Training a machine learning model and make prediction:
-*  >python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/GTSRB/Final_Training/Images/" --test_base_dir "F:/GTSRB/Final_Test/Images/"
+### Training a machine learning model and make prediction:
+*  >python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/GTSRB/Final_Training/Images/" --test_base_dir "F:/GTSRB/Final_Test/Images/"  
 
-Prediction of Test Images Only:
-*  >python Main.py --train f --predict t --model_location models/ --train_base_dir "F:/GTSRB/Final_Training/Images/" --test_base_dir "F:/GTSRB/Final_Test/Images/"
+### Prediction of Test Images Only:
+*  >python Main.py --predict t --model_location models/ --test_base_dir "F:/GTSRB/Final_Test/Images/"  
 
-Training a machine learning model Only:
-*  >python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/GTSRB/Final_Training/Images/" --test_base_dir "F:/GTSRB/Final_Test/Images/"
+### Training of machine learning model Only:
+*  >python Main.py --train t --model_location models/ --train_base_dir "F:/GTSRB/Final_Training/Images/"  
 
-Prediction of single file:
-
-*  >python Main.py --single t --filename "F:/GTSRB/Final_Training/Images/test_image.png" 
+### Prediction on the Scene:
+*  >python Main.py --single t --filename "templates/images/19.jpg"  

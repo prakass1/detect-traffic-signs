@@ -27,11 +27,12 @@ import props as properties
 import machine_learning as ml
 import argparse
 import matplotlib.pyplot as plt
+import sys
 import cv2
 import os
 
 from collections import Counter
-
+import template_matching_color_scale as tm
 
 # bool is not handled well using argparse. wrapper to convert str to bool value
 def str_to_bool(v):
@@ -61,62 +62,79 @@ def main():
     initialize_args()
 
     if type(args.single) is bool:
+        print("Started Single image prediction")
         if type(args.filename) is not str:
             print("please pass the filename with its path to the --filename argument")
+            sys.exit(1)
         else:
-            # uses majority voting to determine class, if no clear winner use prediction from hog model
+            # Calling only hog predictions because voting seems not good
+
             predictions = []
-            img_arr = cv2.imread(args.filename)
-            img_arr = cv2.cvtColor(img_arr, cv2.COLOR_BGR2RGB)
+            #img_arr = cv2.imread(args.filename)
+            localized_img = tm.do_tm(img_loc=args.filename, temp_loc="templates//*.png")
             for feature in ["hog"]:
-                predictions.append(ml.make_single_img_prediction(feature, img_arr))
-
-            class_votes = Counter(predictions)
-
+                predictions.append(ml.make_single_img_prediction(feature, localized_img))
+                #class_votes = Counter(predictions)
             pred = predictions[0]
+            #for key, value in class_votes.items():
+                #if value > 1:
+                    #pred = key
+                    #break
 
-            for key,value in class_votes.items(): 
-                if value > 1:
-                    pred = key
-                    break
-            
-            pred_class = ml.class_switcher(pred)
+            pred_class = ml.class_switcher(str(pred[0]))
         
-            print("The prediction for the image is :" + pred + " - " + pred_class)
-            plt.imshow(img_arr)
-            plt.text(0.5, 0.5, pred + " - " + pred_class, horizontalalignment='left', verticalalignment='top', color="g", weight="bold")
-            plt.savefig("images//prediction_"+ os.path.basename(args.filename))
-            plt.show()
+            print("The prediction for the image is :" + str(pred[0]) + " - " + pred_class)
+            plt.imshow(cv2.cvtColor(localized_img,cv2.COLOR_BGR2RGB))
+            plt.text(0.5, 0.5, str(pred[0]) + " - " + pred_class, horizontalalignment='left', verticalalignment='top', color="g", weight="bold")
+            pred_img = "images//prediction.png"
+            print("Saving the prediction image at - " + str(pred_img))
+            plt.savefig(pred_img)
+            plt.close()
             return
         
 
-
-    if properties.train == True:
-        for feature in [ "hog"]: #,"gray","hsv","laplacian","merged"]:
+    if properties.train is True:
+        for feature in ["hog"]: #"gray","hsv","laplacian","merged"]:
+            print("Started Training")
             ml.perform_training("rf", features=feature)
 
-    if properties.predict == True:
-        for feature in ["merged"]:
+    if properties.predict is True:
+        for feature in ["hog"]:
+            print("Started testing")
             ml.make_predict(features=feature)
+    return
 
 def initialize_args():
     
     global args
     args = parser.parse_args()
 
+    import os
+    if not os.path.isdir("predictions"):
+        print("Creating predictions directory")
+        os.makedirs("predictions")
+    if not os.path.isdir("images"):
+        print("Creating images directory")
+        os.makedirs("images")
+
     if type(args.train) is bool:
+        print("Setting {} for train ".format(str(args.train)))
         properties.train = args.train
     
     if type(args.predict) is bool:
+        print("Setting {} for predict ".format(str(args.predict)))
         properties.predict = args.predict
 
     if type(args.model_location) is str:
+        print("Setting {} for model location ".format(str(args.model_location)))
         properties.model_location = args.model_location
 
     if type(args.train_base_dir) is str:
+        print("Setting {} for train base directory ".format(str(args.train_base_dir)))
         properties.train_base_dir = args.train_base_dir
 
     if type(args.test_base_dir) is str:
+        print("Setting {} for test base directory".format(str(args.train)))
         properties.test_base_dir = args.test_base_dir
 
 
@@ -127,3 +145,4 @@ def initialize_args():
 
 if __name__ == '__main__':
     main()
+

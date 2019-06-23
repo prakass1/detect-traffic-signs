@@ -11,7 +11,7 @@ def match_template(img, templates_location, threshold):
     w, h = img[:,:,0].shape[::-1]
 
     if w > 400 and h > 400:
-        print("Came here")
+        print("Resizing image to specific size")
         img = cv2.resize(img, (400, 400))
 
     blurred_frame = cv2.GaussianBlur(img, (5, 5), 0)
@@ -99,7 +99,8 @@ def match_template(img, templates_location, threshold):
             #crop array in region top_left->bottom_right
             img_copy = img.copy()
             cropped = img[top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
-
+            #Write the image
+            cv2.imwrite("images/to_pred_img.png", cropped)
             cv2.rectangle(img_copy, top_left, bottom_right, (0, 255, 0), 4)
 
             plt.subplot(121), plt.imshow(cropped, cmap='gray')
@@ -115,20 +116,48 @@ def match_template(img, templates_location, threshold):
             #plt.savefig("match-" + str(count) + ".png")
 
 
-######## Test function
+#### A Wrapper function
+def do_tm(img_loc, temp_loc):
+    min_thresh = 0.45
+    max_thresh = 0.95
+    match_img_list = []
+    while max_thresh >= min_thresh:
+        match_img = match_template(img_loc,
+                                   temp_loc, max_thresh)
+        if match_img is not False and match_img is not None:
+            match_img_list.append(match_img)
+            break
+        max_thresh = max_thresh - 0.10
 
-min_thresh = 0.45
-max_thresh = 0.95
-match_img_list = []
-while max_thresh >= min_thresh:
-    match_img = match_template("templates//images//17.jpg",
-                                "templates//*.png",max_thresh)
-    if match_img is not False and match_img is not None:
-        match_img_list.append(match_img)
-        break
-    max_thresh = max_thresh - 0.10
+    if len(match_img_list) > 0:
+        return match_img_list[0]
 
-if len(match_img_list) > 0:
-    import machine_learning as ml
-    ml.make_single_img_prediction("hog", match_img_list[0])
+######## Main function to test
+# min_thresh = 0.45
+# max_thresh = 0.95
+# match_img_list = []
+# while max_thresh >= min_thresh:
+#     match_img = match_template("templates//images//zigzag.jpg",
+#                                 "templates//*.png",max_thresh)
+#     if match_img is not False and match_img is not None:
+#         match_img_list.append(match_img)
+#         break
+#     max_thresh = max_thresh - 0.10
+#
+# if len(match_img_list) > 0:
+#     import machine_learning as ml
+#     feature = "hog"
+#     prediction = ml.make_single_img_prediction(feature, match_img_list[0])
+#     pred_class = ml.class_switcher(str(prediction[0]))
+#
+#     fig = plt.figure(dpi=100, tight_layout=True, frameon=False,
+#                      figsize=(10,8))  # dpi & figsize of my choosing
+#     fig.figimage(match_img_list[0], cmap=plt.cm.binary)
+#     plt.imsave(arr = match_img_list[0], fname="images//" + "tm_" + feature)
+#     plt.text(0.5, 0.5, str(prediction[0]) + " - " + pred_class, horizontalalignment='left', verticalalignment='top', color="g",
+#              weight="bold")
+#     location_pred = "images//" + "tm_" + feature + "prediction.png"
+#     plt.savefig("images//" + "tm_" + feature + "prediction.png")
+#     plt.close()
+#     print("Predictions saved at - ", str(location_pred))
 

@@ -1,0 +1,106 @@
+
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>Setting up the Environment for running the code.md</title><style></style></head><body id="preview">
+<h1><a id="Setting_up_the_Environment_for_running_the_code_0"></a>Setting up the Environment for running the code</h1>
+<h2><a id="Initial_Step_2"></a>Initial Step:</h2>
+<p>Operating System: Windows</p>
+<ol>
+<li>
+<p>Go to <a href="https://www.python.org/downloads/">python installation!!</a> and download the setup for python and install it.<br>
+Once, that is setup ensure that the environment variable are all set for python by checking below command on windows command prompt:</p>
+<ul>
+<li>Open command prompt</li>
+<li>type <strong>python --version</strong> (This should return a version, if not the environment variables are not setup correctly.)</li>
+<li>Setup pip next using this tutorial: <a href="https://pip.pypa.io/en/stable/installing/">pip installation tutorial</a></li>
+<li>Now you are all ready with install all required libraries for running python machine learning code.</li>
+</ul>
+</li>
+<li>
+<p>This repo also contains a requirements.txt using which one can install all the libraries on the fly at once.</p>
+<ul>
+<li>cd into the extracted folder and run <strong>pip install -r requirements.txt</strong> . With all things in place this should setup all required libraries correctly</li>
+</ul>
+</li>
+</ol>
+<p>Now the system is ready for running the code.</p>
+<h2><a id="Alternative_Step_Easy_17"></a>Alternative Step (Easy):</h2>
+<ol>
+<li>
+<p>Installation of Anaconda:<br>
+Anaconda is a virtual environment which already comes with latest libraries for machine learning and usages.<br>
+Install Anaconda using this link : <a href="https://www.anaconda.com/">anaconda installation</a></p>
+</li>
+<li>
+<p>Using the anaconda navigator GUI. All required libraries can be installed:</p>
+<ul>
+<li>pandas==0.24.2</li>
+<li>seaborn==0.9.0</li>
+<li>matplotlib==2.2.3</li>
+<li>scikit-learn==0.19.1</li>
+<li>numpy==1.15.1</li>
+<li>opencv==3.4.2</li>
+</ul>
+</li>
+</ol>
+<p>If any libraries are missed, there would be error and will need to be installed.</p>
+<h2><a id="Steps_for_Execution_of_Python_Code_34"></a>Steps for Execution of Python Code:</h2>
+<p>– The python code is structured into below modules:</p>
+<ul>
+<li><a href="https://github.com/prakass1/detect-traffic-signs/blob/master/Main.py">Main.py</a> - This module is a wrapper which runs to either train or predict over a machine learning model.</li>
+<li><a href="https://github.com/prakass1/detect-traffic-signs/blob/master/props.py">props.py</a> - This is the place where are configuration such as
+<ul>
+<li>classes = [str(i) for i in range(0, 43)] (This sets the class labels)</li>
+<li>train = True (This can be true or false meaning either to train the machine learning model or not)</li>
+<li>predict = True (Same as train)</li>
+<li>model_location = "" (location to store the models which are trained)</li>
+<li>train_base_dir = "" (Base directory where the training images are resided)</li>
+<li>test_base_dir = "" (Base directory where the test images are located)</li>
+</ul>
+</li>
+<li><a href="https://github.com/prakass1/detect-traffic-signs/blob/master/machine_learning.py">machine_learning.py</a> - This module contains methods to build a machine learning model. There are capabilities to extend to many models</li>
+<li><a href="https://github.com/prakass1/detect-traffic-signs/blob/master/processing.py">processing.py</a> - This module contains methods to perform feature extraction and reading of images into arrays etc…</li>
+</ul>
+<p>– Ideally, to run the system one would use below parameters in arguments:</p>
+<p>Help:</p>
+<ul>
+<li>python Main.py -h will provide the help for running the script</li>
+</ul>
+<p><em><em>Note: Ensure that you add "/" at the end of each folder locations</em></em></p>
+<ul>
+<li>Example:</li>
+</ul>
+<span style="color:green;font-weight:bold;">Correct usage: "F:/training_images/"</span> - This contains "/" at the end <br>
+<span style="color:red;font-weight:bold;">False usage: "F:/training_images"</span> - This does not contain "/" at the end<br>
+<h3><a id="Training_a_machine_learning_model_and_make_prediction_59"></a>Training a machine learning model and make prediction:</h3>
+<ul>
+<li>
+<blockquote>
+<p>python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/GTSRB/Final_Training/Images/" --test_base_dir "F:/GTSRB/Final_Test/Images/"</p>
+</blockquote>
+</li>
+</ul>
+<h3><a id="Prediction_of_Test_Images_Only_62"></a>Prediction of Test Images Only:</h3>
+<ul>
+<li>
+<blockquote>
+<p>python Main.py --predict t --model_location models/ --test_base_dir "F:/GTSRB/Final_Test/Images/"</p>
+</blockquote>
+</li>
+</ul>
+<h3><a id="Training_of_machine_learning_model_Only_65"></a>Training of machine learning model Only:</h3>
+<ul>
+<li>
+<blockquote>
+<p>python Main.py --train t --model_location models/ --train_base_dir "F:/GTSRB/Final_Training/Images/"</p>
+</blockquote>
+</li>
+</ul>
+<h3><a id="Prediction_on_the_Scene_68"></a>Prediction on the Scene:</h3>
+<ul>
+<li>
+<blockquote>
+<p>python Main.py --single t --filename "templates/images/19.jpg"</p>
+</blockquote>
+</li>
+</ul>
+
+</body></html>

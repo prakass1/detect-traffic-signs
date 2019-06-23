@@ -250,25 +250,30 @@ def make_predict(features):
     if not os.path.isdir("predictions/" + features):
         os.makedirs("predictions/" + features)
 
+    from pprint import pprint
 
     # ### Write prediction to test files
-    np.savetxt("predictions/" + features + "/prediction.csv", np.array(pred), fmt='%s', delimiter=",")
+    test_pred_location = "predictions/" + features + "/prediction.csv"
+    pprint("Saving the test prediction at - " + test_pred_location)
+    np.savetxt(test_pred_location, np.array(pred), fmt='%s', delimiter=",")
     
     # np.savetxt("predictions/" + features + "/prediction_prob.csv", np.array(pred_prob), delimiter=",")
 
     # np.savetxt("predictions/" + features + "/prediction_all.csv", np.array(predict_arr), fmt='%s', delimiter=",")
-    
-    from pprint import pprint
+
     pprint(classification_report(pred, class_labels))
     print("Precision Score - macro Averaging is -- %f" % precision_score(class_labels,pred,  average="macro"))
     print("Recall Score - macro Averaging is -- %f " % recall_score(class_labels, pred,  average="macro"))
     print("F1 Score - is -- %f" % f1_score(class_labels, pred, average="macro"))
     print("Accuracy is -- %f" % accuracy_score( class_labels, pred))
     cf_m = confusion_matrix(pred, class_labels)
+    pprint("Confusion Matrix")
     pprint(cf_m)
+    cm_location = "predictions/" + features + "/confusion_matrix.csv"
+    pprint("Saving the confusion matrix at - " + cm_location)
 
     # save confusion matrix 
-    np.savetxt("predictions/" + features + "/confusion_matrix.csv", np.array(cf_m), fmt='%s', delimiter=",")
+    np.savetxt(cm_location, np.array(cf_m), fmt='%s', delimiter=",")
 
 
     
@@ -330,6 +335,13 @@ def save_model(model_name, obj):
 
 
 def make_single_img_prediction(feature, img):
+    '''
+    Make a single image prediction. This is utilized for prediction on a scene.
+    :param feature:
+    :param img:
+    :return:
+    '''
+
     import cv2
     print("Resizing")
     resize = (32, 32)
@@ -355,10 +367,30 @@ def make_single_img_prediction(feature, img):
         hog = cv2.HOGDescriptor(resize, block_size, block_stride, cell_size, nBins)
         X = hog.compute(np.asarray(X, dtype=np.uint8))
 
+        # Merged features
+    if feature == "merged":
+        print("Extraction of edge features")
+        X = cv2.GaussianBlur(X, (3, 3), 0)
+        X = cv2.cvtColor(X, cv2.COLOR_BGR2GRAY)
+        # detect edges
+        X = cv2.Laplacian(X, cv2.CV_64F)
+        print("Extraction of HoG on edge features")
+        # Paper params
+        # (16,16) block size
+        block_size = (resize[0] // 2, resize[1] // 2)
+        # (8,8) cell size == block_stride (Moving cell area)
+        block_stride = (resize[0] // 4, resize[1] // 4)
+        cell_size = block_stride
+        # number of bins - 9
+        nBins = 9
+        hog = cv2.HOGDescriptor(resize, block_size, block_stride, cell_size, nBins)
+        X = hog.compute(np.asarray(X, dtype=np.uint8))
+
+
     X = [X.flatten()]
     print("Starting Testing...")
     model = pickle.load(open(properties.model_location + "rf_" + str(feature), 'rb'))
     pred = model.predict(X)
     
-    return pred[0]
+    return pred
 
