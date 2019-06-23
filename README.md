@@ -22,12 +22,12 @@ Install Anaconda using this link : [anaconda installation](https://www.anaconda.
 
 2. Using the anaconda navigator GUI. All required libraries can be installed:
 
-    *   pandas==0.24.2
-    *   seaborn==0.9.0
-    *   matplotlib==2.2.3 
-    *   scikit-learn==0.19.1
-    *   numpy==1.15.1
-    *   opencv==3.4.2
+    *   pandas>=0.24.2
+    *   seaborn>=0.9.0
+    *   matplotlib>=2.2.3 
+    *   scikit-learn>=0.19.1
+    *   numpy>=1.15.1
+    *   opencv>=3.4.2
 
 If any libraries are missed, there would be error and will need to be installed.
 
