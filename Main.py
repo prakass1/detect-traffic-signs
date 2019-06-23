@@ -26,6 +26,10 @@ OS: Windows/Linux
 import props as properties
 import machine_learning as ml
 import argparse
+import matplotlib.pyplot as plt
+import cv2
+
+from collections import Counter
 
 
 # bool is not handled well using argparse. wrapper to convert str to bool value
@@ -46,22 +50,55 @@ parser.add_argument('--predict', type=str_to_bool, help='predict flag - indicate
 parser.add_argument('--model_location', type=str, help='directory to save the model')
 parser.add_argument('--train_base_dir', type=str, help='directory for the training data')
 parser.add_argument('--test_base_dir', type=str, help='directory for the test data')
+parser.add_argument('--single', type=str_to_bool, help='classify a single full scene image')
+parser.add_argument('--filename', type=str, help='path to file to be classified')
 
+args = None
 
 def main():
 
     initialize_args()
 
+    if type(args.single) is bool:
+        if type(args.filename) is not str:
+            print("please pass the filename with its path to the --filename argument")
+        else:
+            # uses majority voting to determine class, if no clear winner use prediction from hog model
+            predictions = []
+            img_arr = cv2.imread(args.filename)
+            for feature in ["merged"]:
+                predictions.append(ml.make_single_img_prediction(feature, img_arr))
+
+            class_votes = Counter(predictions)
+
+            pred = predictions[0]
+
+            for key,value in class_votes.items(): 
+                if value > 1:
+                    pred = key
+                    break
+            
+            pred_class = ml.class_switcher(pred)
+        
+            print("The prediction for the image is :" + pred + " - " + pred_class)
+            plt.imshow(args.filename, cmap="gray")
+            plt.text(0.5, 0.5, pred + " - " + pred_class, horizontalalignment='left', verticalalignment='top', color="g", weight="bold")
+            plt.savefig("images//prediction.png")
+            return
+        
+
+
     if properties.train == True:
-        for feature in ["hog","gray", "hsv", "laplacian", "merged"]:
+        for feature in [ "hog"]: #,"gray","hsv","laplacian","merged"]:
             ml.perform_training("rf", features=feature)
 
     if properties.predict == True:
-        for feature in ["hog", "gray", "hsv", "laplacian"]:
+        for feature in ["merged"]:
             ml.make_predict(features=feature)
 
 def initialize_args():
     
+    global args
     args = parser.parse_args()
 
     if type(args.train) is bool:

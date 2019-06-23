@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
 
 def build_model(X, classId, model_name, features):
@@ -42,11 +43,11 @@ def build_model(X, classId, model_name, features):
                 pred_prob = rf.predict_proba(X_test)
                 from pprint import pprint
                 pprint(classification_report(pred, y_test))
-                print("Precision Score - Micro Averaging is -- %f" % precision_score(pred, y_test, average="micro"))
-                precison.append(precision_score(pred, y_test, average="micro"))
-                print("Recall Score - Micro Averaging is -- %f " % recall_score(pred, y_test, average="micro"))
-                recall.append(recall_score(pred, y_test, average="micro"))
-                print("F1 Score - is -- %f" % f1_score(pred, y_test, average="micro"))
+                print("Precision Score - macro Averaging is -- %f" % precision_score(pred, y_test, average="macro"))
+                precison.append(precision_score(pred, y_test, average="macro"))
+                print("Recall Score - macro Averaging is -- %f " % recall_score(pred, y_test, average="macro"))
+                recall.append(recall_score(pred, y_test, average="macro"))
+                print("F1 Score - is -- %f" % f1_score(pred, y_test, average="macro"))
                 print("Accuracy of fold- " + str(count) + " is -- %f" % accuracy_score(pred, y_test))
                 accuracy.append(accuracy_score(pred, y_test))
                 cf_m = confusion_matrix(pred, y_test)
@@ -246,8 +247,12 @@ def make_predict(features):
     #     predict_arr.append(new_list)
 
 
+    if not os.path.isdir("predictions/" + features):
+        os.makedirs("predictions/" + features)
+
+
     # ### Write prediction to test files
-    # np.savetxt("predictions/" + features + "/prediction.csv", np.array(pred), fmt='%s', delimiter=",")
+    np.savetxt("predictions/" + features + "/prediction.csv", np.array(pred), fmt='%s', delimiter=",")
     
     # np.savetxt("predictions/" + features + "/prediction_prob.csv", np.array(pred_prob), delimiter=",")
 
@@ -255,10 +260,10 @@ def make_predict(features):
     
     from pprint import pprint
     pprint(classification_report(pred, class_labels))
-    print("Precision Score - Micro Averaging is -- %f" % precision_score(pred, class_labels, average="micro"))
-    print("Recall Score - Micro Averaging is -- %f " % recall_score(pred, class_labels, average="micro"))
-    print("F1 Score - is -- %f" % f1_score(pred, class_labels, average="micro"))
-    print("Accuracy is -- %f" % accuracy_score(pred, class_labels))
+    print("Precision Score - macro Averaging is -- %f" % precision_score(class_labels,pred,  average="macro"))
+    print("Recall Score - macro Averaging is -- %f " % recall_score(class_labels, pred,  average="macro"))
+    print("F1 Score - is -- %f" % f1_score(class_labels, pred, average="macro"))
+    print("Accuracy is -- %f" % accuracy_score( class_labels, pred))
     cf_m = confusion_matrix(pred, class_labels)
     pprint(cf_m)
 
@@ -315,9 +320,6 @@ def make_single_img_prediction(feature, img):
     print("Starting Testing...")
     model = pickle.load(open(properties.model_location + "rf_" + str(feature), 'rb'))
     pred = model.predict(X)
-    print("The prediction for the image is ", str(pred))
-    plt.imshow(img, cmap="gray")
-    plt.text(0.5, 0.5, str(pred), horizontalalignment='left',
-                        verticalalignment='top', color="g", weight="bold")
-    plt.savefig("images//prediction.png")
+    
+    return str(pred)
 
