@@ -68,4 +68,4 @@ Training a machine learning model Only:
 
 Prediction of single file:
 
-*  >python Main.py --single --filename "F:/GTSRB/Final_Training/Images/test_image.png" 
+*  >python Main.py --single t --filename "F:/GTSRB/Final_Training/Images/test_image.png" 
