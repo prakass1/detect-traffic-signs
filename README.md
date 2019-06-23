@@ -51,11 +51,17 @@ If any libraries are missed, there would be error and will need to be installed.
 Help:
 *  python Main.py -h will provide the help for running the script
 
+*_Note: Ensure that you add "/" at the end of each folder locations_*
+   * Example:  
+   <span style="color:green;">Correct usage: "F:/training_images/"</span>  
+   <span style="color:red;">False usage: "F:/training_images"</span>  
+   
+
 Training a machine learning model and make prediction:
-*  python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/Images/" --test_base_dir "F:/Final_Test/Images/"
+*  >python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/GTSRB/Final_Training/Images/" --test_base_dir "F:/GTSRB/Final_Test/Images/"
 
 Prediction of Test Images Only:
-*  python Main.py --train f --predict t --model_location models/ --train_base_dir "F:/Images/" --test_base_dir "F:/Final_Test/Images/"
+*  >python Main.py --train f --predict t --model_location models/ --train_base_dir "F:/GTSRB/Final_Training/Images/" --test_base_dir "F:/GTSRB/Final_Test/Images/"
 
 Training a machine learning model Only:
-*  python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/Images/" --test_base_dir "F:/Final_Test/Images/"
+*  >python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/GTSRB/Final_Training/Images/" --test_base_dir "F:/GTSRB/Final_Test/Images/"
