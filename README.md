@@ -27,7 +27,7 @@ Install Anaconda using this link : [anaconda installation](https://www.anaconda.
     *   matplotlib>=2.2.3 
     *   scikit-learn>=0.19.1
     *   numpy>=1.15.1
-    *   opencv>=3.4.2
+    *   opencv-python>=3.4.2
 
 If any libraries are missed, there would be error and will need to be installed.
 
