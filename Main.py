@@ -116,6 +116,9 @@ def initialize_args():
     if not os.path.isdir("images"):
         print("Creating images directory")
         os.makedirs("images")
+    if not os.path.isdir("models"):
+        print("Creating models directory")
+        os.makedirs("models")
 
     if type(args.train) is bool:
         print("Setting {} for train ".format(str(args.train)))
