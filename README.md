@@ -52,10 +52,10 @@ Help:
 *  python Main.py -h will provide the help for running the script
 
 Training a machine learning model and make prediction:
-*  python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/Modules_Courses/Semester-4/Computer Vision/data/GTSRB/Final_Training/Images/" --test_base_dir "F:/Modules_Courses/Semester-4/Computer Vision/data/GTSRB/Final_Test/Images/"
+*  python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/Images/" --test_base_dir "F:/Final_Test/Images/"
 
 Prediction of Test Images Only:
-*  python Main.py --train f --predict t --model_location models/ --train_base_dir "F:/Modules_Courses/Semester-4/Computer Vision/data/GTSRB/Final_Training/Images/" --test_base_dir "F:/Modules_Courses/Semester-4/Computer Vision/data/GTSRB/Final_Test/Images/"
+*  python Main.py --train f --predict t --model_location models/ --train_base_dir "F:/Images/" --test_base_dir "F:/Final_Test/Images/"
 
 Training a machine learning model Only:
-*  python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/Modules_Courses/Semester-4/Computer Vision/data/GTSRB/Final_Training/Images/" --test_base_dir "F:/Modules_Courses/Semester-4/Computer Vision/data/GTSRB/Final_Test/Images/"
+*  python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/Images/" --test_base_dir "F:/Final_Test/Images/"
