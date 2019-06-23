@@ -66,7 +66,8 @@ def main():
             # uses majority voting to determine class, if no clear winner use prediction from hog model
             predictions = []
             img_arr = cv2.imread(args.filename)
-            for feature in ["merged"]:
+            img_arr = cv2.cvtColor(img_arr, cv2.COLOR_BGR2RGB)
+            for feature in ["hog"]:
                 predictions.append(ml.make_single_img_prediction(feature, img_arr))
 
             class_votes = Counter(predictions)
@@ -81,9 +82,10 @@ def main():
             pred_class = ml.class_switcher(pred)
         
             print("The prediction for the image is :" + pred + " - " + pred_class)
-            plt.imshow(args.filename, cmap="gray")
+            plt.imshow(img_arr)
             plt.text(0.5, 0.5, pred + " - " + pred_class, horizontalalignment='left', verticalalignment='top', color="g", weight="bold")
             plt.savefig("images//prediction.png")
+            plt.show()
             return
         
 

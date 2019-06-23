@@ -121,7 +121,7 @@ min_thresh = 0.45
 max_thresh = 0.95
 match_img_list = []
 while max_thresh >= min_thresh:
-    match_img = match_template("templates//images//zigzag.jpg",
+    match_img = match_template("templates//images//17.jpg",
                                 "templates//*.png",max_thresh)
     if match_img is not False and match_img is not None:
         match_img_list.append(match_img)

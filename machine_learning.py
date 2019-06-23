@@ -321,5 +321,5 @@ def make_single_img_prediction(feature, img):
     model = pickle.load(open(properties.model_location + "rf_" + str(feature), 'rb'))
     pred = model.predict(X)
     
-    return str(pred)
+    return pred[0]
 
