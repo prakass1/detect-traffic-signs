@@ -28,6 +28,7 @@ import machine_learning as ml
 import argparse
 import matplotlib.pyplot as plt
 import cv2
+import os
 
 from collections import Counter
 
@@ -84,7 +85,7 @@ def main():
             print("The prediction for the image is :" + pred + " - " + pred_class)
             plt.imshow(img_arr)
             plt.text(0.5, 0.5, pred + " - " + pred_class, horizontalalignment='left', verticalalignment='top', color="g", weight="bold")
-            plt.savefig("images//prediction.png")
+            plt.savefig("images//prediction_"+ os.path.basename(args.filename))
             plt.show()
             return
         

@@ -65,3 +65,7 @@ Prediction of Test Images Only:
 
 Training a machine learning model Only:
 *  >python Main.py --train t --predict t --model_location models/ --train_base_dir "F:/GTSRB/Final_Training/Images/" --test_base_dir "F:/GTSRB/Final_Test/Images/"
+
+Prediction of single file:
+
+*  >python Main.py --single --filename "F:/GTSRB/Final_Training/Images/test_image.png" 
