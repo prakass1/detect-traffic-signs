@@ -68,3 +68,11 @@ Help:
 
 ### Prediction on the Scene:
 *  >python Main.py --single t --filename "templates/images/19.jpg"  
+
+
+# Extension for future:
+1. Building other machine learning model such as SVM, GBM for example using the scientific literature.
+2. Changing the wrapper function to also extend to support model name. Now it runs all models and for single file prediction it runs only the random forest model.
+3. Utilize deep learning architectures for the same problem
+
+### Contact for anything: subashprakash8@gmail.com
