@@ -75,4 +75,3 @@ Help:
 2. Changing the wrapper function to also extend to support model name. Now it runs all models and for single file prediction it runs only the random forest model.
 3. Utilize deep learning architectures for the same problem
 
-### Contact for anything: subashprakash8@gmail.com
